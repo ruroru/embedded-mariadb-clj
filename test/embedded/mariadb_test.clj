@@ -53,7 +53,8 @@
                                        :on-error mock-fn})
                     (catch Exception _))
                   (is (= false (mariadb/is-running?)) "Mariadb should not be running")
-                  (is (= (mock/call-count mock-fn) 1) "on-error function should be called"))
+                  (is (= (mock/call-count mock-fn) 1) "on-error function should be called")
+                  (is (instance? SQLIntegrityConstraintViolationException (first (first (mock/calls mock-fn)))) "on-error function should be called"))
   (is (= (mariadb/is-running?) false) "Mariadb should not be running"))
 
 (deftest is-running

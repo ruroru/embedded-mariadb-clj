@@ -10,17 +10,17 @@
 (def data-source (jdbc/get-datasource
                      {:dbtype "mariadb"
                       :host   "localhost"
-                      :port   3306}))
+                      :port   4306}))
 
 (mariadb/with-db! (fn[] 
                     (jdbc/execute! 
                         (jdbc/get-datasource db-spec) 
                         ["CREATE DATABASE my_db;"]))
-        {:port   mariadb-port
-         :on-error (fn []
-                       (is false)})
+        {:port   4306
+         :on-error (fn [ex]
+                       (println (type ex)})
                        
-(mariadb/init-db {:port   3306})         
+(mariadb/init-db {:port   4306})         
 
 (mariadb/halt-db!)
 

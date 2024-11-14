@@ -98,7 +98,7 @@
       (catch Exception e
         (reset! runtime-exception e)
         (when-not (nil? on-error)
-          (on-error))
+          (on-error e))
         (logger/error (.getMessage ^Exception e)))
       (finally
         (halt-db!)))))
