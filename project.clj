@@ -17,6 +17,6 @@
                                      [mock-clj "0.2.1"]
                                      [org.mariadb.jdbc/mariadb-java-client "3.5.0"]]}}
   :plugins [[lein-ancient "0.7.0"]
-            [org.clojars.jj/bump "1.0.0"]]
+            [org.clojars.jj/bump "1.0.3"]]
 
   :repl-options {:init-ns mariadb-embedded-clj.core})
