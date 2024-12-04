@@ -11,7 +11,7 @@
                                     :password :env/clojars_pass}]]
   :profiles {:test {:global-vars    {*warn-on-reflection* true}
                     :resource-paths ["test/resources"]
-                    :dependencies   [[babashka/fs "0.5.22"]
+                    :dependencies   [[babashka/fs "0.5.23"]
                                      [ch.qos.logback/logback-classic "1.5.12"]
                                      [com.github.seancorfield/next.jdbc "1.3.967"]
                                      [mock-clj "0.2.1"]
