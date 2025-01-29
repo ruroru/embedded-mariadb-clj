@@ -13,7 +13,7 @@
                     :resource-paths ["test/resources"]
                     :dependencies   [[babashka/fs "0.5.24"]
                                      [ch.qos.logback/logback-classic "1.5.16"]
-                                     [com.github.seancorfield/next.jdbc "1.3.981"]
+                                     [com.github.seancorfield/next.jdbc "1.3.994"]
                                      [mock-clj "0.2.1"]
                                      [org.mariadb.jdbc/mariadb-java-client "3.5.1"]]}}
   :plugins [[lein-ancient "0.7.0"]
