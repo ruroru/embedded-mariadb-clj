@@ -5,6 +5,7 @@
     [mock-clj.core :as mock]
     [next.jdbc :as jdbc])
   (:import (ch.vorburger.mariadb4j DB)
+           (java.io File)
            (java.sql SQLIntegrityConstraintViolationException)))
 
 (defn mock-fn [])
@@ -28,13 +29,43 @@
                        (jdbc/execute! (jdbc/get-datasource db-spec) query))
                  #:SCHEMATA{:schema_name db-name})))
 
-(deftest test-maria-db-init-mariadb
+(deftest test-maria-db-init-mariadb-with-default-base-and-data-dirs
   (let [mariadb (mariadb/init-db! {:port mariadb-port})]
     (is (instance? DB mariadb))
     (mariadb/halt-db!)))
 
-(deftest test-with-mariadb
+
+(deftest test-maria-db-init-mariadb-can-use-file-for-base-and-data-dirs
+  (let [mariadb (mariadb/init-db! {:port     mariadb-port
+                                   :base-dir (File. ^String (str (System/getProperty "java.io.tmpdir") "/maria-data2"))
+                                   :data-dir (File. ^String (str (System/getProperty "java.io.tmpdir") "/maria-base2"))})]
+    (is (instance? DB mariadb))
+    (mariadb/halt-db!)))
+
+
+(deftest test-maria-db-init-mariadb-can-use-string-for-base-and-data-dirs
+  (let [mariadb (mariadb/init-db! {:port     mariadb-port
+                                   :base-dir (str (System/getProperty "java.io.tmpdir") "/maria-base3")
+                                   :data-dir (str (System/getProperty "java.io.tmpdir") "/maria-data3")})]
+    (is (instance? DB mariadb))
+    (mariadb/halt-db!)))
+
+
+(deftest test-with-mariadb-default-base-and-data-dirs
   (mariadb/with-db! assert-databases {:port mariadb-port}))
+
+
+(deftest test-with-mariadb-can-use-file-for-base-and-data-dirs
+  (mariadb/with-db! assert-databases {:port     mariadb-port
+                                      :base-dir (File. ^String (str (System/getProperty "java.io.tmpdir") "/maria-data2"))
+                                      :data-dir (File. ^String (str (System/getProperty "java.io.tmpdir") "/maria-base2"))}))
+
+
+(deftest test-with-mariadb-can-use-string-for-base-and-data-dirs
+  (mariadb/with-db! assert-databases {:port     mariadb-port
+                                      :base-dir (str (System/getProperty "java.io.tmpdir") "/maria-base3")
+                                      :data-dir (str (System/getProperty "java.io.tmpdir") "/maria-data3")}))
+
 
 (deftest test-maria-db-does-stops-gracefully-when-exception-thrown
   (try
