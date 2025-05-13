@@ -11,8 +11,7 @@
                base-dir-file
                data-dir-file
                security-disabled]
-  (let [
-        db-config ^DBConfiguration (-> (DBConfigurationBuilder/newBuilder)
+  (let [db-config ^DBConfiguration (-> (DBConfigurationBuilder/newBuilder)
                                        (.setPort port)
                                        (.setDeletingTemporaryBaseAndDataDirsOnShutdown delete-after-shutdown)
                                        (.setDataDir data-dir-file)
@@ -79,11 +78,11 @@
                         (do
                           (logger/error "Unsupported file type")
                           (throw (Exception. "Unsupported file type"))))
-        db (get-db port
-                   delete-after-shutdown
-                   base-dir-file
-                   data-dir-file
-                   security-disabled)]
+        db ^DB (get-db port
+                       delete-after-shutdown
+                       base-dir-file
+                       data-dir-file
+                       security-disabled)]
     (try
       (.start db)
       (reset! db-atom db)
@@ -138,11 +137,11 @@
                         (do
                           (logger/error "Unsupported file type")
                           (throw (Exception. "Unsupported file type"))))
-        db (get-db port
-                   delete-after-shutdown
-                   base-dir-file
-                   data-dir-file
-                   security-disabled)]
+        db ^DB (get-db port
+                       delete-after-shutdown
+                       base-dir-file
+                       data-dir-file
+                       security-disabled)]
     (try
       (.start db)
       (reset! db-atom db)
