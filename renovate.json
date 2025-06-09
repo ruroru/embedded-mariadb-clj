@@ -4,5 +4,6 @@
     "config:recommended"
   ],
   "baseBranches": ["master"],
-  "dependencyDashboard": false
+  "dependencyDashboard": false,
+  "schedule": ["* * 1 */3 *"]
 }
