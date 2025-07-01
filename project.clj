@@ -15,7 +15,7 @@
                                      [ch.qos.logback/logback-classic "1.5.18"]
                                      [com.github.seancorfield/next.jdbc "1.3.1002"]
                                      [mock-clj "0.2.1"]
-                                     [org.mariadb.jdbc/mariadb-java-client "3.5.3"]]}}
+                                     [org.mariadb.jdbc/mariadb-java-client "3.5.4"]]}}
   :plugins [[lein-ancient "0.7.0"]
             [org.clojars.jj/bump-md "1.0.0"]
             [org.clojars.jj/strict-check "1.0.2"]
