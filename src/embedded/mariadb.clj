@@ -5,6 +5,7 @@
            (java.io File)))
 
 (def ^:private db-atom (atom nil))
+(def ^:private shutdown-thread (atom nil))
 
 (defn- get-db [port
                delete-after-shutdown
@@ -24,14 +25,25 @@
   "Stops database, if it is running." []
   (when (not (nil? @db-atom))
     (let [db ^DB @db-atom]
+      (when @shutdown-thread
+        (.removeShutdownHook (Runtime/getRuntime) @shutdown-thread)
+
+        (reset! shutdown-thread nil))
+
+
       (.stop ^DB db))
     (reset! db-atom nil)))
+
+(defn- create-shutdown-thread [db]
+  (Thread. (fn []
+             (when @db-atom
+               (.stop ^DB db)))))
 
 (defn is-running?
   "Checks if the database is currently running.
   returns true if running, and false if not."
   []
-  (not (nil? @db-atom)))
+  (not (nil? ^DB @db-atom)))
 
 (defn init-db!
   "Starts a temporary MariaDB instance and returns it.
@@ -86,9 +98,13 @@
     (try
       (.start db)
       (reset! db-atom db)
+      (reset! shutdown-thread (create-shutdown-thread db))
+      (.addShutdownHook (Runtime/getRuntime) @shutdown-thread)
       (catch Exception e
         (logger/error (.getMessage ^Exception e))))
     db))
+
+
 
 (defn with-db!
   "Starts a temporary MariaDB instance and executes the provided function `f` with database being available and ensures that database shuts down properly after function `f` is finished.
@@ -145,6 +161,8 @@
     (try
       (.start db)
       (reset! db-atom db)
+      (reset! shutdown-thread (create-shutdown-thread db))
+      (.addShutdownHook (Runtime/getRuntime) @shutdown-thread)
       (f)
       (catch Exception e
         (reset! runtime-exception e)
@@ -152,4 +170,5 @@
           (on-error e))
         (logger/error (.getMessage ^Exception e)))
       (finally
-        (halt-db!)))))
+        (halt-db!)
+        ))))
