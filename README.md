@@ -1,3 +1,8 @@
+
+## Installation
+```clojure
+[org.clojars.jj/embedded-mariadb-clj "1.1.1"]
+```
 ## Usage
 
 [![Clojars Project](https://img.shields.io/clojars/v/org.clojars.jj/embedded-mariadb-clj.svg)](https://clojars.org/org.clojars.jj/embedded-mariadb-clj)
