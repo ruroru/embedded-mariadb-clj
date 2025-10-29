@@ -16,9 +16,10 @@
                                      [com.github.seancorfield/next.jdbc "1.3.1070"]
                                      [mock-clj "0.2.1"]
                                      [org.mariadb.jdbc/mariadb-java-client "3.5.6"]]}}
-  :plugins [[lein-ancient "0.7.0"]
-            [org.clojars.jj/bump-md "1.1.0"]
+  :plugins [[org.clojars.jj/bump-md "1.1.0"]
             [org.clojars.jj/strict-check "1.1.0"]
+            [org.clojars.jj/lein-git-tag "1.0.0-SNAPSHOT"]
             [org.clojars.jj/bump "1.0.4"]]
+  :jvm-opts []
 
   :repl-options {:init-ns mariadb-embedded-clj.core})

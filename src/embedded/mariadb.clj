@@ -4,8 +4,8 @@
   (:import (ch.vorburger.mariadb4j DB DBConfiguration DBConfigurationBuilder)
            (java.io File)))
 
-(def ^:private db-atom (atom nil))
-(def ^:private shutdown-thread (atom nil))
+(defonce shutdown-threads (atom {}))
+(def ^:dynamic *db-spec* nil)
 
 (defn- get-db [port
                delete-after-shutdown
@@ -19,33 +19,29 @@
                                        (.setBaseDir base-dir-file)
                                        (.setSecurityDisabled security-disabled)
                                        .build)]
-    (-> (DB/newEmbeddedDB db-config))))
+    db-config))
 
-(defn halt-db!
-  "Stops database, if it is running." []
-  (when (not (nil? @db-atom))
-    (let [db ^DB @db-atom]
-      (when @shutdown-thread
-        (.removeShutdownHook (Runtime/getRuntime) @shutdown-thread)
+(defn halt-db
+  [^DB db]
+  (when (not (nil? db))
+    (let [db ^DB db
+          shutdown-thread (get @shutdown-threads db)]
+      (.stop ^DB db)
+      (when shutdown-thread
+        (try
+          (.removeShutdownHook (Runtime/getRuntime) shutdown-thread)
+          (catch IllegalStateException _
+            nil))
+        (swap! shutdown-threads dissoc db)))))
 
-        (reset! shutdown-thread nil))
-
-
-      (.stop ^DB db))
-    (reset! db-atom nil)))
-
-(defn- create-shutdown-thread [db]
+(defn- create-shutdown-thread [^DB db]
   (Thread. (fn []
-             (when @db-atom
-               (.stop ^DB db)))))
+             (when db
+               (.stop ^DB db)
+               (swap! shutdown-threads dissoc db)))))
 
-(defn is-running?
-  "Checks if the database is currently running.
-  returns true if running, and false if not."
-  []
-  (not (nil? ^DB @db-atom)))
 
-(defn init-db!
+(defn init-db
   "Starts a temporary MariaDB instance and returns it.
 
   Available options to configure DB:
@@ -59,13 +55,14 @@
            delete-after-shutdown
            base-dir
            data-dir
-           security-disabled]
+           security-disabled
+           dbname]
     :or   {port                  4306
            delete-after-shutdown true
            base-dir              (File. ^String (str (System/getProperty "java.io.tmpdir") "/maria-data1"))
            data-dir              (File. ^String (str (System/getProperty "java.io.tmpdir") "/maria-base1"))
-           security-disabled     true}}]
-  (when (is-running?) (halt-db!))
+           security-disabled     true
+           dbname                "testdb"}}]
 
   (let [base-dir-file (cond
                         (instance? String base-dir)
@@ -90,23 +87,28 @@
                         (do
                           (logger/error "Unsupported file type")
                           (throw (Exception. "Unsupported file type"))))
-        db ^DB (get-db port
-                       delete-after-shutdown
-                       base-dir-file
-                       data-dir-file
-                       security-disabled)]
+
+        db-conf ^DBConfiguration (get-db port
+                                         delete-after-shutdown
+                                         base-dir-file
+                                         data-dir-file
+                                         security-disabled)
+        db-url (.getURL db-conf dbname)
+        db ^DB (DB/newEmbeddedDB db-conf)]
     (try
-      (.start db)
-      (reset! db-atom db)
-      (reset! shutdown-thread (create-shutdown-thread db))
-      (.addShutdownHook (Runtime/getRuntime) @shutdown-thread)
+      (binding [*db-spec* {:jdbcUrl db-url}]
+        (.start db))
+
+      (let [shutdown-thread (create-shutdown-thread db)]
+        (.addShutdownHook (Runtime/getRuntime) shutdown-thread)
+        (swap! shutdown-threads assoc db shutdown-thread))
       (catch Exception e
         (logger/error (.getMessage ^Exception e))))
     db))
 
 
 
-(defn with-db!
+(defn with-db
   "Starts a temporary MariaDB instance and executes the provided function `f` with database being available and ensures that database shuts down properly after function `f` is finished.
 
   Available options to configure DB:
@@ -122,13 +124,21 @@
              base-dir
              data-dir
              security-disabled
-             on-error]
+             on-error
+             dbname
+             username
+             password
+             init-hook]
       :or   {port                  4306
              delete-after-shutdown true
              base-dir              (str (System/getProperty "java.io.tmpdir") "/maria-base")
              data-dir              (str (System/getProperty "java.io.tmpdir") "/maria-data")
              security-disabled     true
-             on-error              nil}}]
+             on-error              nil
+             dbname                "testdb"
+             username              "username"
+             password              "password"
+             init-hook             nil}}]
   (let [runtime-exception (atom nil)
         base-dir-file (cond
                         (instance? String base-dir)
@@ -153,22 +163,33 @@
                         (do
                           (logger/error "Unsupported file type")
                           (throw (Exception. "Unsupported file type"))))
-        db ^DB (get-db port
-                       delete-after-shutdown
-                       base-dir-file
-                       data-dir-file
-                       security-disabled)]
+
+        db-conf ^DBConfiguration (get-db port
+                                         delete-after-shutdown
+                                         base-dir-file
+                                         data-dir-file
+                                         security-disabled)
+        db-url (.getURL db-conf dbname)
+        db ^DB (DB/newEmbeddedDB db-conf)
+
+        shutdown-thread (create-shutdown-thread db)
+        ]
+
     (try
       (.start db)
-      (reset! db-atom db)
-      (reset! shutdown-thread (create-shutdown-thread db))
-      (.addShutdownHook (Runtime/getRuntime) @shutdown-thread)
-      (f)
+      (.addShutdownHook (Runtime/getRuntime) shutdown-thread)
+      (swap! shutdown-threads assoc db shutdown-thread)
+      (.run db "DROP DATABASE IF EXISTS test;")
+      (.run db (format "CREATE DATABASE %s CHARACTER SET utf8mb4\nCOLLATE utf8mb4_general_ci; ;" dbname))
+
+      (let [db-spec {:jdbcUrl db-url}]
+        (binding [*db-spec* db-spec]
+          (f)))
+
       (catch Exception e
         (reset! runtime-exception e)
         (when-not (nil? on-error)
           (on-error e))
         (logger/error (.getMessage ^Exception e)))
       (finally
-        (halt-db!)
-        ))))
+        (halt-db db)))))

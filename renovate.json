@@ -5,5 +5,7 @@
   ],
   "baseBranches": ["master"],
   "dependencyDashboard": false,
-  "schedule": ["* * 1 */3 *"]
+  "automerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "squash"
 }

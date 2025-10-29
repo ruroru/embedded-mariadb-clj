@@ -1,8 +1,9 @@
-
 ## Installation
+
 ```clojure
 [org.clojars.jj/embedded-mariadb-clj "1.1.1"]
 ```
+
 ## Usage
 
 [![Clojars Project](https://img.shields.io/clojars/v/org.clojars.jj/embedded-mariadb-clj.svg)](https://clojars.org/org.clojars.jj/embedded-mariadb-clj)
@@ -29,20 +30,7 @@
 
 (mariadb/halt-db!)
 
-``` 
-
-### with-db! configuration
-
-| Type     | key                   | description                                              | default value   |
-|----------|-----------------------|----------------------------------------------------------|-----------------|
-| int      | port                  | Maria db port                                            | 4306            |    
-| Boolean_ | delete-after-shutdown | Delete maria db files after shutdown                     | true            |
-| String   | base-dir              | Path to location where mariadb executable will be stored | /tmp/maria-base |
-| File     | base-dir              | Path to location where mariadb executable will be stored | /tmp/maria-base |
-| String   | data-dir              | Path, where data will be stored                          | /tmp/maria-data |
-| File     | data-dir              | Path, where data will be stored                          | /tmp/maria-data |
-| Boolean  | security-disabled     | Skip grant tables                                        | true            |
-| IFn      | on-error              | Function to call, if exception is caught                 | nil             |
+```
 
 ### init-db configuration
 
@@ -55,6 +43,15 @@
 | String  | data-dir              | Path, where data will be stored                          | /tmp/maria-data |
 | File    | data-dir              | Path, where data will be stored                          | /tmp/maria-data |
 | Boolean | security-disabled     | Skip grant tables                                        | true            |
+
+### with-db! configuration
+
+with-db contains additional params
+
+| Type   | key       | description                                                                    | default value |
+|--------|-----------|--------------------------------------------------------------------------------|---------------|
+| IFn    | on-error  | Function to call, if exception is caught                                       | nil           |
+| String | dbname    | creates database if provided                                                   | "testdb"      |
 
 ## License
 
