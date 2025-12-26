@@ -1,7 +1,7 @@
 ## Installation
 
 ```clojure
-[org.clojars.jj/embedded-mariadb-clj "1.1.1"]
+[org.clojars.jj/embedded-mariadb-clj "1.2.0"]
 ```
 
 ## Usage
