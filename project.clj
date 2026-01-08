@@ -5,7 +5,7 @@
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[ch.vorburger.mariaDB4j/mariaDB4j "3.2.0"]
                  [org.clojure/clojure "1.12.4"]
-                 [org.clojure/tools.logging "1.3.0"]]
+                 [org.clojure/tools.logging "1.3.1"]]
   :deploy-repositories [["clojars" {:url      "https://repo.clojars.org"
                                     :username :env/clojars_user
                                     :password :env/clojars_pass}]]
