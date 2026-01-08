@@ -1,4 +1,4 @@
-(defproject org.clojars.jj/embedded-mariadb-clj "1.2.1"
+(defproject org.clojars.jj/embedded-mariadb-clj "1.2.2-SNAPSHOT"
   :description "Embedded maria db for clojure"
   :url "https://github.com/ruroru/mariadb-embedded-clj"
   :license {:name "EPL-2.0"
