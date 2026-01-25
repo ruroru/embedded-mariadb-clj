@@ -12,7 +12,7 @@
   :profiles {:test {:global-vars    {*warn-on-reflection* true}
                     :resource-paths ["test/resources"]
                     :dependencies   [
-                                     [ch.qos.logback/logback-classic "1.5.25"]
+                                     [ch.qos.logback/logback-classic "1.5.26"]
                                      [com.github.seancorfield/next.jdbc "1.3.1086"]
                                      [mock-clj "0.2.1"]
                                      [org.mariadb.jdbc/mariadb-java-client "3.5.7"]]}}
