@@ -15,7 +15,7 @@
 (def ^:private query ["SELECT schema_name FROM information_schema.SCHEMATA;"])
 (def ^:private db-name "my_database")
 
-(defn assert-databases []
+(defn assert-databases [db-spec]
   (jdbc/execute! (jdbc/get-datasource db-spec) [(format "CREATE DATABASE %s;" db-name)])
   (is (contains? (into #{}
                        (jdbc/execute! (jdbc/get-datasource db-spec) query))
@@ -72,7 +72,7 @@
                                      :data-dir (str (System/getProperty "java.io.tmpdir") "/maria-data3")}))
 
 (deftest test-default-db-spec
-  (mariadb/with-db (fn []
+  (mariadb/with-db (fn [db-spec]
                      (is (= #{#:SCHEMATA{:Database "information_schema"}
                               #:SCHEMATA{:Database "mysql"}
                               #:SCHEMATA{:Database "performance_schema"}
@@ -87,15 +87,14 @@
                                                                        :username "username1"})
                                                  ["SHOW DATABASES;"]))))
                      (is (= {:jdbcUrl "jdbc:mariadb://localhost:4306/testdb"}
-                            mariadb/*db-spec*
-                            )))
+                            db-spec)))
                    {:base-dir (str (System/getProperty "java.io.tmpdir") "/maria-base3")
                     :data-dir (str (System/getProperty "java.io.tmpdir") "/maria-data3")}))
 
 (deftest test-overriden-db-spec-values
-  (mariadb/with-db (fn []
+  (mariadb/with-db (fn [db-spec]
                      (is (= {:jdbcUrl "jdbc:mariadb://localhost:5306/dbname1"}
-                            mariadb/*db-spec*)))
+                            db-spec)))
 
                    {
                     :port     5306
@@ -106,7 +105,7 @@
                     :data-dir (str (System/getProperty "java.io.tmpdir") "/maria-data3")}))
 
 (deftest ensure-that-db-is-created
-  (mariadb/with-db (fn []
+  (mariadb/with-db (fn [_db-spec]
                      (is (= #{#:SCHEMATA{:Database "information_schema"}
                               #:SCHEMATA{:Database "mysql"}
                               #:SCHEMATA{:Database "performance_schema"}
