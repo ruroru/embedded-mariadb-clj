@@ -13,7 +13,7 @@
                     :resource-paths ["test/resources"]
                     :dependencies   [
                                      [ch.qos.logback/logback-classic "1.6.5"]
-                                     [com.github.seancorfield/next.jdbc "1.3.1118"]
+                                     [com.github.seancorfield/next.jdbc "1.4.70"]
                                      [mock-clj "0.2.1"]
                                      [org.mariadb.jdbc/mariadb-java-client "3.5.10"]]}}
   :plugins [[org.clojars.jj/bump-md "1.1.0"]
